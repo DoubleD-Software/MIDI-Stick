@@ -1,0 +1,331 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>DoubleD MIDI Joystick</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #222;
+      color: #eee;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .panel {
+      text-align: center;
+      border: 2px solid #777;
+      padding: 16px;
+      background: #333;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-top: 0;
+    }
+
+    #pad {
+      width: 320px;
+      height: 320px;
+      border: 2px solid #999;
+      position: relative;
+      background:
+        linear-gradient(#555 1px, transparent 1px),
+        linear-gradient(90deg, #555 1px, transparent 1px);
+      background-size: 40px 40px;
+      margin: 20px auto;
+      overflow: hidden;
+    }
+
+    #dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: red;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .pressed {
+      background: lime !important;
+    }
+
+    #status {
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      margin: 12px 0;
+    }
+
+    select, button {
+      font-family: monospace;
+      padding: 4px 8px;
+      border: 1px solid #999;
+      background: #ddd;
+      color: #000;
+      margin: 4px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #log {
+      width: 520px;
+      max-width: 90vw;
+      height: 180px;
+      overflow-y: auto;
+      background: #111;
+      color: #ddd;
+      text-align: left;
+      padding: 8px;
+      border: 1px solid #777;
+      font-family: monospace;
+      font-size: 13px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>DoubleD MIDI Joystick</h1>
+
+    <div id="status">Waiting for MIDI...</div>
+
+    <div class="controls">
+      <select id="deviceSelect"></select>
+      <button id="resetBtn">Reset MIDI</button>
+      <button id="clearLogBtn">Clear Log</button>
+    </div>
+
+    <div id="pad">
+      <div id="dot"></div>
+    </div>
+
+    <div>X: <span id="xVal">64</span></div>
+    <div>Y: <span id="yVal">64</span></div>
+    <div>Button: <span id="btnVal">off</span></div>
+
+    <pre id="log"></pre>
+  </div>
+
+  <script>
+    const X_CC = 20;
+    const Y_CC = 21;
+    const BTN_NOTE = 60;
+
+    let midi = null;
+    let selectedInputId = null;
+
+    let x = 64;
+    let y = 64;
+
+    const dot = document.getElementById("dot");
+    const statusEl = document.getElementById("status");
+    const xVal = document.getElementById("xVal");
+    const yVal = document.getElementById("yVal");
+    const btnVal = document.getElementById("btnVal");
+    const logEl = document.getElementById("log");
+    const deviceSelect = document.getElementById("deviceSelect");
+    const resetBtn = document.getElementById("resetBtn");
+    const clearLogBtn = document.getElementById("clearLogBtn");
+
+    function friendlyName(input) {
+      let name = input.name || "Unknown MIDI Device";
+
+      name = name.replace(/\s+\d+:\d+$/, "");
+
+      const parts = name.split(":");
+
+      if (parts.length === 2) {
+        const left = parts[0].trim();
+        const right = parts[1].trim();
+
+        if (right.startsWith(left)) {
+          name = right;
+        }
+      }
+
+      return name;
+    }
+
+    function log(msg) {
+      logEl.textContent += msg + "\n";
+
+      const lines = logEl.textContent.split("\n");
+      if (lines.length > 200) {
+        logEl.textContent = lines.slice(-200).join("\n");
+      }
+
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function resetValues() {
+      x = 64;
+      y = 64;
+      btnVal.textContent = "off";
+      dot.classList.remove("pressed");
+      updateDot();
+    }
+
+    function updateDot() {
+      const padSize = 320;
+
+      const px = ((127 - x) / 127) * padSize;
+      const py = ((127 - y) / 127) * padSize;
+
+      dot.style.left = `${px}px`;
+      dot.style.top = `${py}px`;
+
+      xVal.textContent = x;
+      yVal.textContent = y;
+    }
+
+    function detachAllInputs() {
+      if (!midi) return;
+
+      for (const input of midi.inputs.values()) {
+        input.onmidimessage = null;
+      }
+    }
+
+    function populateDeviceSelect() {
+      deviceSelect.innerHTML = "";
+
+      if (!midi || midi.inputs.size === 0) {
+        const opt = document.createElement("option");
+        opt.textContent = "No MIDI inputs";
+        opt.value = "";
+        deviceSelect.appendChild(opt);
+        return;
+      }
+
+      for (const input of midi.inputs.values()) {
+        const opt = document.createElement("option");
+        opt.value = input.id;
+        opt.textContent = friendlyName(input);
+        deviceSelect.appendChild(opt);
+      }
+
+      if (
+        selectedInputId &&
+        [...midi.inputs.values()].some(input => input.id === selectedInputId)
+      ) {
+        deviceSelect.value = selectedInputId;
+      } else {
+        deviceSelect.value = midi.inputs.values().next().value.id;
+        selectedInputId = deviceSelect.value;
+      }
+    }
+
+    function selectInput(inputId) {
+      detachAllInputs();
+
+      selectedInputId = inputId;
+
+      const input = midi.inputs.get(inputId);
+
+      if (!input) {
+        statusEl.textContent = "Selected MIDI device not available";
+        log("Selected device not available");
+        return;
+      }
+
+      input.onmidimessage = onMIDIMessage;
+
+      statusEl.textContent = `Listening to: ${friendlyName(input)}`;
+      log(`Listening to: ${friendlyName(input)}`);
+    }
+
+    function onMIDIMessage(event) {
+      const bytes = [...event.data];
+      log(bytes.join(" "));
+
+      const [status, data1, data2] = bytes;
+      const command = status & 0xf0;
+
+      if (command === 0xb0) {
+        if (data1 === X_CC) x = data2;
+        if (data1 === Y_CC) y = data2;
+        updateDot();
+      }
+
+      if (command === 0x90 && data1 === BTN_NOTE && data2 > 0) {
+        btnVal.textContent = "on";
+        dot.classList.add("pressed");
+      }
+
+      if (
+        (command === 0x80 && data1 === BTN_NOTE) ||
+        (command === 0x90 && data1 === BTN_NOTE && data2 === 0)
+      ) {
+        btnVal.textContent = "off";
+        dot.classList.remove("pressed");
+      }
+    }
+
+    async function startMIDI() {
+      if (!navigator.requestMIDIAccess) {
+        statusEl.textContent = "Web MIDI not supported";
+        return;
+      }
+
+      try {
+        detachAllInputs();
+
+        midi = await navigator.requestMIDIAccess();
+
+        populateDeviceSelect();
+
+        log(`Inputs found: ${midi.inputs.size}`);
+
+        if (midi.inputs.size === 0) {
+          statusEl.textContent = "No MIDI inputs detected";
+          return;
+        }
+
+        selectInput(deviceSelect.value);
+
+        midi.onstatechange = event => {
+          log(`State: ${friendlyName(event.port)} ${event.port.state}`);
+          populateDeviceSelect();
+
+          if (deviceSelect.value) {
+            selectInput(deviceSelect.value);
+          }
+        };
+
+      } catch (err) {
+        statusEl.textContent = "MIDI unavailable";
+        log(err.message || err);
+        console.error(err);
+      }
+    }
+
+    deviceSelect.addEventListener("change", () => {
+      selectInput(deviceSelect.value);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      log("Reset MIDI");
+      resetValues();
+      startMIDI();
+    });
+
+    clearLogBtn.addEventListener("click", () => {
+      logEl.textContent = "";
+    });
+
+    updateDot();
+    startMIDI();
+  </script>
+</body>
+</html>
