@@ -1,11 +1,11 @@
 # DoubleD MIDI Joystick
 <p align="center">
-  <img src="images/hero1.jpg" alt="Assembly 3" width="40%">
-  <img src="images/hero2.jpg" alt="Assembly 4" width="40%">
+  <img src="images/hero1.webp" alt="Assembly 3" width="40%">
+  <img src="images/hero2.webp" alt="Assembly 4" width="40%">
 </p>
 <p align="center">
-  <img src="images/hero3.jpg" alt="Assembly 5" width="40%">
-  <img src="images/hero4.jpg" alt="Assembly 6" width="40%">
+  <img src="images/hero3.webp" alt="Assembly 5" width="40%">
+  <img src="images/hero4.webp" alt="Assembly 6" width="40%">
 </p>
 
 The MIDI joystick was designed to work with stage lighting equipment to intuitively control
@@ -42,8 +42,8 @@ attached S3 board with screws and embedded square nuts.
 
 ## Prototype
 <p align="center">
-  <img src="images/prototype1.jpg" alt="Prototype 1" width="35%">
-  <img src="images/prototype2.jpg" alt="Prototype 2" width="35%">
+  <img src="images/prototype1.webp" alt="Prototype 1" width="35%">
+  <img src="images/prototype2.webp" alt="Prototype 2" width="35%">
 </p>
 
 The prototype featured the aforementioned 16-bit ADC and a perfboard on which the joystick is soldered to.
@@ -56,8 +56,8 @@ the ADC, making it an extremely simple board.
 
 ## PCB
 <p align="center">
-  <img src="images/pcb1.jpg" alt="PCB 1" width="35%">
-  <img src="images/pcb2.jpg" alt="PCB 2" width="35%">
+  <img src="images/pcb1.webp" alt="PCB 1" width="35%">
+  <img src="images/pcb2.webp" alt="PCB 2" width="35%">
 </p>
 
 As previously mentioned, the PCB is as simple as it gets. It only connects the S3 and the joystick module in the 
@@ -145,9 +145,9 @@ numeral values.
 
 ## 1. Electronics Assembly
 <p align="center">
-  <img src="images/electronics1.jpg" alt="Electronics 1" width="30%">
-  <img src="images/electronics2.jpg" alt="Electronics 2" width="30%">
-  <img src="images/electronics3.jpg" alt="Electronics 3" width="30%">
+  <img src="images/electronics1.webp" alt="Electronics 1" width="30%">
+  <img src="images/electronics2.webp" alt="Electronics 2" width="30%">
+  <img src="images/electronics3.webp" alt="Electronics 3" width="30%">
 </p>
 
 1. Solder the joystick to the PCB.
@@ -175,18 +175,18 @@ If you ever want to calibrate your stick again, look at the [calibration procedu
 
 ## 3. Assembly
 <p align="center">
-  <img src="images/assembly1.jpg" alt="Assembly 1" width="70%">
+  <img src="images/assembly1.webp" alt="Assembly 1" width="70%">
 </p>
 <p align="center">
-  <img src="images/assembly2.jpg" alt="Assembly 2" width="70%">
+  <img src="images/assembly2.webp" alt="Assembly 2" width="70%">
 </p>
 <p align="center">
-  <img src="images/assembly3.jpg" alt="Assembly 3" width="35%">
-  <img src="images/assembly4.jpg" alt="Assembly 4" width="35%">
+  <img src="images/assembly3.webp" alt="Assembly 3" width="35%">
+  <img src="images/assembly4.webp" alt="Assembly 4" width="35%">
 </p>
 <p align="center">
-  <img src="images/assembly5.jpg" alt="Assembly 5" width="35%">
-  <img src="images/assembly6.jpg" alt="Assembly 6" width="35%">
+  <img src="images/assembly5.webp" alt="Assembly 5" width="35%">
+  <img src="images/assembly6.webp" alt="Assembly 6" width="35%">
 </p>
 
 > [!WARNING]
