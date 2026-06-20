@@ -209,7 +209,7 @@ You should now have a working DoubleD MIDI Joystick in your hands! Verify with t
 - Software and firmware are licensed under GPL-3.0-or-later.
   - `/src`
   - `/include`
-  - `/webtester`
+  - `/docs` (the web visualizer)
   - **License file:** `LICENSE`
 - Hardware design files, including PCB layouts, schematics,
   Gerbers, 3D models, STEP files, STL and manufacturing files,
